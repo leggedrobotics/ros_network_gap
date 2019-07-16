@@ -1,9 +1,70 @@
 #!/usr/bin/env python
+
 import rospy
 import cPickle
 import socket
 import importlib
-import UDPMulticaster
+
+from socket import *
+from collections import deque
+from threading import Thread
+
+
+class UdpIdentifier:
+    @staticmethod
+    def getId():
+        return "MAGIC" + gethostname() + rospy.get_name()
+
+    @staticmethod
+    def isOwnId(value):
+        return value == UdpIdentifier.getId()
+
+    @staticmethod
+    def isId(value):
+        return value.startswith("MAGIC")
+
+
+class UdpMulticaster:
+    def __init__(self, broadcast, port):
+        self.multicast_address = broadcast
+        self.port = port
+        self.socket = socket(AF_INET, SOCK_DGRAM)
+        self.socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+
+    def sendIdentifierPacket(self):
+        self.socket.sendto(UdpIdentifier.getId(), (self.multicast_address, self.port))
+
+    def sendPacket(self, data):
+        self.socket.sendto(data, (self.multicast_address, self.port))
+
+
+class UdpMulticasterReceiver:
+    def __init__(self, port, callback):
+        self.buf = deque()
+        self.port = port
+        self.socket = socket(AF_INET, SOCK_DGRAM)
+        self.socket.settimeout(5.0)
+        self.run = False
+        self.own_addr = 0
+        self.callback = callback
+
+    def start(self):
+        self.socket.bind(("", self.port))
+        self.thread = Thread(target=self.receive)
+        self.thread.start()
+
+    def receive(self):
+        while not rospy.is_shutdown():
+            try:
+                data, addr = self.socket.recvfrom(4096)
+                if (UdpIdentifier.isOwnId(data)):
+                    rospy.loginfo("Received own udp identification " + str(addr))
+                    self.own_addr = str(addr)
+
+                if (str(addr) != self.own_addr and not UdpIdentifier.isId(data)):
+                    self.callback(data)
+            except timeout:
+                pass
 
 
 class RosNetworkGap:
@@ -25,14 +86,13 @@ class RosNetworkGap:
             rospy.logfatal("Could not load type/module " + self.msg_pkg + " / "+ self.msg_type)
             raise
 
-
         # set up ros stuff
         self.ros_publisher = rospy.Publisher(self.exchangetopic,  self.msg_class, queue_size=10)
         self.ros_subscriber =  rospy.Subscriber(self.inputtopic, self.msg_class, self.ros_callback, queue_size=1)
 
         # set up UDP stuff
-        self.udp_sender = UDPMulticaster.UdpMulticaster(broadcast, port)
-        self.udp_receiver = UDPMulticaster.UdpMulticasterReceiver(port, self.udp_callback)
+        self.udp_sender = UdpMulticaster(broadcast, port)
+        self.udp_receiver = UdpMulticasterReceiver(port, self.udp_callback)
 
 
         #start receiver
@@ -40,7 +100,6 @@ class RosNetworkGap:
 
         # send identifier packet for UDP
         self.udp_sender.sendIdentifierPacket()
-
 
     def udp_callback(self, data):
         # callback received, deserialize data and check if of right object type
@@ -55,6 +114,7 @@ class RosNetworkGap:
 
             # wait to be inside throttling frequency
             self.max_rate.sleep()
+
 
 if __name__ == '__main__':
     rospy.init_node('ros_network_gap', anonymous=True)

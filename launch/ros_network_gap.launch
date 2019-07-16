@@ -3,10 +3,9 @@
 <launch>
 
   <!-- Node name -->
-  <arg name="node_name"                 default="ros_network_gap"/>
-
+  <arg name="node_name"    default="ros_network_gap"/>
   <!-- Param file -->
-  <arg name="param_file"                default="$(find ros_network_gap)/config/example.yaml"/>
+  <arg name="param_file"   default="$(find ros_network_gap)/config/example.yaml"/>
 
   <node pkg="ros_network_gap" type="ros_network_gap.py" name="$(arg node_name)" output="screen" respawn="true">
     <rosparam command="load" file="$(arg param_file)"/>
