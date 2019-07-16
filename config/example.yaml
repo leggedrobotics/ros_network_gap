@@ -1,12 +1,12 @@
 # adress of the listener
-listener_ip:      192.168.0.236
-listener_port:    11400
+listener_ip:      192.168.0.200
+listener_port:    2508
 
 # ros msg
-msg_pkg:          std_msgs.msg
-msg_type:         String
+msg_pkg:          tf2_msgs.msg
+msg_type:         TFMessage
 
 # ros topics
-max_publish_rate: 1
-subscriber_topic: /chatter
-publisher_topic:  /chatter
+max_publish_rate: 20
+subscriber_topic: /tf
+publisher_topic:  /tf
