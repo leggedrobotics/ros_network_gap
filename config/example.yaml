@@ -1,0 +1,12 @@
+# adress of the listener
+listener_ip:      192.168.0.236
+listener_port:    11400
+
+# ros msg
+msg_pkg:          std_msgs.msg
+msg_type:         String
+
+# ros topics
+max_publish_rate: 1
+subscriber_topic: /chatter
+publisher_topic:  /chatter
