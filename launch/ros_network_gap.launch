@@ -19,13 +19,13 @@
   <arg name="max_publish_rate"          default="30"/>
 
   <node pkg="ros_network_gap" type="ros_network_gap.py" name="network_gap_hostname" output="screen" respawn="true">
-    <param name="broadcast"         value="$(arg broadcast_ip)" />   
+    <param name="broadcast"         value="$(arg listener_ip)" />   
     <param name="port"              value="$(arg listener_port)" />       
     <param name="msg_pkg"           value="$(arg msg_pkg)" />
     <param name="msg_type"          value="$(arg msg_type)" />
     <param name="max_rate"          value="$(arg max_publish_rate)" />     
-    <remap from="input_topic"       to="$(arg input_topic)" />
-    <remap from="network_gap_topic" to="$(arg broadcast_topic)" />
+    <remap from="input_topic"       to="$(arg subscriber_topic)" />
+    <remap from="network_gap_topic" to="$(arg publisher_topic)" />
   </node>
 
 </launch>
