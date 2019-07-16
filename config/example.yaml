@@ -1,5 +1,5 @@
 # adress of the listener
-listener_ip:      192.168.0.200
+listener_ip:      192.168.0.236
 listener_port:    2508
 
 # ros msg
@@ -9,4 +9,4 @@ msg_type:         TFMessage
 # ros topics
 max_publish_rate: 20
 subscriber_topic: /tf
-publisher_topic:  /tf
+publisher_topic:  /tf_udp
