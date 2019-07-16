@@ -59,13 +59,13 @@ class RosNetworkGap:
 if __name__ == '__main__':
     rospy.init_node('ros_network_gap', anonymous=True)
 
-    broadcast = str(rospy.get_param("~broadcast", "10.10.50.255"))
-    port = int(rospy.get_param("~port", 14317))
-    inputtopic = "input_topic"
-    exchangetopic = "network_gap_topic"
+    broadcast = str(rospy.get_param("~listener_ip", "10.10.50.255"))
+    port = int(rospy.get_param("~listener_port", 14317))
+    inputtopic = str(rospy.get_param("~subscriber_topic", "subscriber_topic"))
+    exchangetopic = str(rospy.get_param("~publisher_topic", "publisher_topic"))
     msg_pkg = str(rospy.get_param("~msg_pkg", "nav_msgs.msg"))
     msg_type = str(rospy.get_param("~msg_type", "Odometry"))
-    max_rate = float(rospy.get_param("~max_rate", 5))
+    max_rate = float(rospy.get_param("~max_publish_rate", 5))
 
     rospy.loginfo("Starting ros_network_gap with message " + msg_pkg + "/"+msg_type + " on " + broadcast + ":" + str(port))
     node = RosNetworkGap(broadcast, port, inputtopic, exchangetopic, msg_pkg, msg_type, max_rate)

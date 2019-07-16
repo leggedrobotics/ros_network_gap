@@ -2,30 +2,14 @@
 
 <launch>
 
-  <!-- Listener IP address-->
-  <arg name="listener_ip"/>
-  <!-- Listener UDP port -->
-  <arg name="listener_port"/>
+  <!-- Node name -->
+  <arg name="node_name"                 default="ros_network_gap"/>
 
-  <!-- ROS message type -->
-  <arg name="msg_pkg"                   default="std_msgs.msg"/>
-  <arg name="msg_type"                  default="String"/>
+  <!-- Param file -->
+  <arg name="param_file"                default="$(find ros_network_gap)/config/example.yaml"/>
 
-  <!-- ROS messaging -->
-  <arg name="subscriber_topic"          default="/chatter"/>
-  <arg name="publisher_topic"           default="/chatter"/>
-
-  <!-- Maximum rate of publishing to the listener -->
-  <arg name="max_publish_rate"          default="1"/>
-
-  <node pkg="ros_network_gap" type="ros_network_gap.py" name="network_gap_hostname" output="screen" respawn="true">
-    <param name="broadcast"         value="$(arg listener_ip)" />   
-    <param name="port"              value="$(arg listener_port)" />       
-    <param name="msg_pkg"           value="$(arg msg_pkg)" />
-    <param name="msg_type"          value="$(arg msg_type)" />
-    <param name="max_rate"          value="$(arg max_publish_rate)" />     
-    <remap from="input_topic"       to="$(arg subscriber_topic)" />
-    <remap from="network_gap_topic" to="$(arg publisher_topic)" />
+  <node pkg="ros_network_gap" type="ros_network_gap.py" name="$(arg node_name)" output="screen" respawn="true">
+    <rosparam command="load" file="$(arg param_file)"/>
   </node>
 
 </launch>

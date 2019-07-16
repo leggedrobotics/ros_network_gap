@@ -16,6 +16,6 @@ catkin_package(
     ${PACKAGE_DEPENDENCIES}
 )
 
-install(DIRECTORY launch bin
+install(DIRECTORY launch bin config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
