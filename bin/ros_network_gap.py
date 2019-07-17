@@ -55,7 +55,7 @@ class UdpMulticasterReceiver:
         while not rospy.is_shutdown():
             try:
                 data, addr = self.socket.recvfrom(65536)
-                
+
                 if (UdpIdentifier.isOwnId(data)):
                     rospy.loginfo("Received own udp identification " + str(addr))
                     self.own_addr = str(addr)
