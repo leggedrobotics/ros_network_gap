@@ -6,7 +6,6 @@ import socket
 import importlib
 
 from socket import *
-from collections import deque
 from threading import Thread
 
 
@@ -40,7 +39,6 @@ class UdpMulticaster:
 
 class UdpMulticasterReceiver:
     def __init__(self, port, callback):
-        self.buf = deque()
         self.port = port
         self.socket = socket(AF_INET, SOCK_DGRAM)
         self.socket.settimeout(5.0)
@@ -56,13 +54,15 @@ class UdpMulticasterReceiver:
     def receive(self):
         while not rospy.is_shutdown():
             try:
-                data, addr = self.socket.recvfrom(4096)
+                data, addr = self.socket.recvfrom(65536)
+
                 if (UdpIdentifier.isOwnId(data)):
                     rospy.loginfo("Received own udp identification " + str(addr))
                     self.own_addr = str(addr)
 
                 if (str(addr) != self.own_addr and not UdpIdentifier.isId(data)):
                     self.callback(data)
+
             except timeout:
                 pass
 
@@ -87,13 +87,12 @@ class RosNetworkGap:
             raise
 
         # set up ros stuff
-        self.ros_publisher = rospy.Publisher(self.exchangetopic,  self.msg_class, queue_size=10)
+        self.ros_publisher = rospy.Publisher(self.exchangetopic,  self.msg_class, queue_size=1)
         self.ros_subscriber =  rospy.Subscriber(self.inputtopic, self.msg_class, self.ros_callback, queue_size=1)
 
         # set up UDP stuff
         self.udp_sender = UdpMulticaster(broadcast, port)
         self.udp_receiver = UdpMulticasterReceiver(port, self.udp_callback)
-
 
         #start receiver
         self.udp_receiver.start()
